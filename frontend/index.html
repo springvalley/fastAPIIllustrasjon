@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastPI test</title>
+  </head>
+  <body>
+    <h1>Enkel illustrasjon av fastAPI</h1>
+    <input id="test-input" />
+    <br />
+    <button onclick="postNewTodo()">Legg til ny ting å gjøre</button>
+    <h3>Liste:</h3>
+    <ul id="todoList"></ul>
+  </body>
+  <script>
+
+
+    //Denne funksjonen kjøres når vinduet er ferdig med å laste
+    window.onload = async () => {
+      //Vi bruker funksjonen vi har definert lenger nede og lagrer dataen i et data variabel.
+      let data = await getTodos();
+      //Dette er <ul> elementet hvor vi vil lage listen vår
+      let listParent = document.getElementById("todoList");
+      //Looper gjennom dataen
+      for (let item of data.todos) {
+        //Lager et nytt <li> element for hver linje i dataen.
+        let itemElement = document.createElement("li");
+        //Legger til selve dataen som tekst inne i det elementet
+        itemElement.innerHTML = item.item;
+        //Legger elementet vi akkurat laget inn under <ul> elementet
+        listParent.appendChild(itemElement);
+      }
+    };
+
+    //Denne funksjonen bruker fetch APIen for å legge til en ny todo i "databasen".
+    async function postNewTodo() {
+      //Vi henter verdien av input feltet med en getelementbyid
+      let todoItem = document.getElementById("test-input").value;
+
+      //Så bruker vi fetch og lager en POST request 
+      const response = await fetch((URL = "http://localhost:8000/todo"), {
+       //Spesifisierer at vi lager en POST request
+        method: "POST",
+        //Headere til requesten
+        headers: {
+          "Content-Type": "application/json",
+        },
+        //Kroppen til requesten er bare dataen vi vil legge til i "databasen"
+        body: JSON.stringify({ id: 0, item: todoItem }),
+      });
+      //Laster vinduet inn på nytt så det vises på skjermen.
+      location.reload();
+    }
+
+    //Denne funksjonen bruker fetch APIen for å sende en GET request til fast-api for å hente data
+    //Fra "databasen"
+    async function getTodos() {
+      const response = await fetch("http://localhost:8000/todo");
+      //Vi henter ut resultatet fra fetch og gjør det om til JSON så det er lettere å jobbe  med
+      const todos = await response.json();
+      //Og returnerer dataen. 
+      return todos;
+    }
+  </script>
+</html>
